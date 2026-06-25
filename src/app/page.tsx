@@ -2,8 +2,9 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { useRef } from "react";
+import { useRef, useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
+import { FoodModal, Food } from "@/components/FoodModal";
 import { Leaf, ChefHat, GlassWater, Users, Clock, Award, Star } from "lucide-react";
 import AnimatedCounter from "@/components/AnimatedCounter";
 
@@ -17,6 +18,8 @@ if (typeof window !== "undefined") {
 
 export default function Home() {
   const containerRef = useRef<HTMLDivElement>(null);
+  const [selectedFood, setSelectedFood] = useState<Food | null>(null);
+  const [isFoodModalOpen, setIsFoodModalOpen] = useState(false);
 
   useGSAP(() => {
     // 1. Hero Animations
@@ -47,16 +50,19 @@ export default function Home() {
       "-=0.4"
     );
 
-    // Parallax hero background
-    gsap.to(".hero-bg", {
-      yPercent: 30,
-      ease: "none",
-      scrollTrigger: {
-        trigger: ".hero-section",
-        start: "top top",
-        end: "bottom top",
-        scrub: true
-      }
+    // Parallax hero background (Desktop only)
+    let mm = gsap.matchMedia();
+    mm.add("(min-width: 768px)", () => {
+      gsap.to(".hero-bg", {
+        yPercent: 20,
+        ease: "none",
+        scrollTrigger: {
+          trigger: ".hero-section",
+          start: "top top",
+          end: "bottom top",
+          scrub: true
+        }
+      });
     });
 
     // 2. Scroll Fade Up Animations
@@ -142,19 +148,19 @@ export default function Home() {
   return (
     <div className="flex flex-col w-full -mt-24" ref={containerRef}>
       {/* 1. HERO SECTION */}
-      <section className="hero-section relative h-screen min-h-[600px] flex items-center justify-center overflow-hidden">
+      <section className="hero-section relative h-[100dvh] min-h-[500px] md:h-screen md:min-h-[600px] flex items-center justify-center overflow-hidden">
         <div className="absolute inset-0 w-full h-full overflow-hidden">
-          <div className="hero-bg absolute inset-0 w-full h-[130%] -top-[15%]">
+          <div className="hero-bg absolute inset-0 w-full h-full md:h-[120%] md:-top-[10%]">
             <Image
               src="/assets/bg_main.webp"
               alt="House of Hunger Ambience"
               fill
               priority
-              className="object-cover object-center"
-              quality={90}
+              className="object-cover object-[center_30%] md:object-center"
+              quality={100}
             />
           </div>
-          <div className="absolute inset-0 bg-black/50 z-10" />
+          <div className="absolute inset-0 bg-black/60 md:bg-black/50 z-10" />
         </div>
         
         <div className="container relative z-20 px-4 flex flex-col items-center text-center mt-20" style={{ perspective: "1000px" }}>
@@ -197,9 +203,9 @@ export default function Home() {
       </section>
 
       {/* 2. SIGNATURE EXPERIENCE */}
-      <section className="py-24 bg-background relative z-20">
+      <section className="py-12 md:py-24 bg-background relative z-20">
         <div className="container mx-auto px-4 md:px-8">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 md:gap-16 items-center">
             <div className="fade-up-section space-y-8">
               <div>
                 <h2 className="text-primary font-semibold tracking-widest uppercase text-sm mb-2">Signature Experience</h2>
@@ -245,14 +251,14 @@ export default function Home() {
       </section>
 
       {/* 3. FEATURED DISHES */}
-      <section className="py-24 bg-muted/50 border-y border-border">
+      <section className="py-12 md:py-24 bg-muted/50 border-y border-border">
         <div className="container mx-auto px-4 md:px-8">
           <div className="fade-up-section text-center mb-16">
             <h2 className="text-primary font-semibold tracking-widest uppercase text-sm mb-2">Culinary Masterpieces</h2>
             <h3 className="font-heading text-4xl md:text-5xl font-bold text-foreground">Featured Dishes</h3>
           </div>
 
-          <div className="dishes-grid grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+          <div className="dishes-grid grid grid-cols-2 lg:grid-cols-3 gap-4 md:gap-8">
             {[
               { img: "dish1.webp", name: "Paneer Tikka Masala", cat: "Paneer Specials" },
               { img: "dish2.webp", name: "Hawaiian chicken salad", cat: "Hawaiian salad" },
@@ -261,25 +267,25 @@ export default function Home() {
               { img: "dish5.webp", name: " Veg Spring Rolls", cat: "Spring Rolls" },
               { img: "drink1.webp", name: "Mango Mocktail", cat: "Beverages" }
             ].map((dish, i) => (
-              <div key={i} className="dish-card">
-                <Card className="bg-background border-border overflow-hidden group cursor-pointer hover:border-primary/50 hover:shadow-xl transition-all duration-500 h-full">
-                  <div className="relative h-64 w-full overflow-hidden">
+              <div key={i} className="dish-card" onClick={() => { setSelectedFood(dish); setIsFoodModalOpen(true); }}>
+                <Card className="bg-background border-border overflow-hidden group cursor-pointer hover:border-primary/50 hover:shadow-xl transition-all duration-500 h-full flex flex-col">
+                  <div className="relative h-32 sm:h-48 md:h-64 w-full overflow-hidden shrink-0">
                     <Image
                       src={`/assets/${dish.img}`}
                       alt={dish.name}
                       fill
                       className="object-cover transition-transform duration-[1.5s] group-hover:scale-110"
                     />
-                    <div className="absolute top-4 left-4 bg-black/60 backdrop-blur-md px-3 py-1 rounded-full text-xs text-white uppercase tracking-wider border border-white/10 z-10">
+                    <div className="absolute top-2 left-2 md:top-4 md:left-4 bg-black/60 backdrop-blur-md px-2 py-0.5 md:px-3 md:py-1 rounded-full text-[10px] md:text-xs text-white uppercase tracking-wider border border-white/10 z-10">
                       {dish.cat}
                     </div>
                   </div>
-                  <CardContent className="p-6 relative">
-                    <div className="absolute -top-6 right-6 w-12 h-12 bg-primary rounded-full flex items-center justify-center text-white shadow-lg shadow-primary/30 transform transition-all duration-500 group-hover:rotate-[360deg] group-hover:scale-110 z-10">
-                      <ChefHat size={20} />
+                  <CardContent className="p-3 md:p-6 relative flex-grow flex flex-col">
+                    <div className="absolute -top-4 right-4 md:-top-6 md:right-6 w-8 h-8 md:w-12 md:h-12 bg-primary rounded-full flex items-center justify-center text-white shadow-lg shadow-primary/30 transform transition-all duration-500 group-hover:rotate-[360deg] group-hover:scale-110 z-10">
+                      <ChefHat className="w-4 h-4 md:w-5 md:h-5" />
                     </div>
-                    <h4 className="font-heading text-2xl font-bold text-foreground mb-2">{dish.name}</h4>
-                    <p className="text-muted-foreground text-sm">Experience the authentic taste of our chef's special preparation, made with premium ingredients.</p>
+                    <h4 className="font-heading text-base sm:text-lg md:text-2xl font-bold text-foreground mb-1 md:mb-2 pr-6">{dish.name}</h4>
+                    <p className="text-muted-foreground text-xs md:text-sm line-clamp-3 md:line-clamp-none">Experience the authentic taste of our chef's special preparation, made with premium ingredients.</p>
                   </CardContent>
                 </Card>
               </div>
@@ -288,9 +294,9 @@ export default function Home() {
         </div>
       </section>
       {/* OUR AMBIANCE */}
-      <section className="py-24 bg-background overflow-hidden">
+      <section className="py-12 md:py-24 bg-background overflow-hidden">
         <div className="container mx-auto px-4 md:px-8">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center flex-row-reverse lg:flex-row-reverse">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 md:gap-16 items-center flex-row-reverse lg:flex-row-reverse">
             <div className="fade-up-section space-y-8 lg:pl-10 order-2 lg:order-1">
               <div>
                 <h2 className="text-primary font-semibold tracking-widest uppercase text-sm mb-2">Beautiful Spaces</h2>
@@ -328,7 +334,7 @@ export default function Home() {
       </section>
 
       {/* GALLERY CAROUSEL */}
-      <section className="py-24 bg-muted/30 overflow-hidden border-y border-border">
+      <section className="py-12 md:py-24 bg-muted/30 overflow-hidden border-y border-border">
         <div className="container mx-auto px-4 md:px-8 mb-12 flex justify-between items-end fade-up-section">
           <div>
             <h2 className="text-primary font-semibold tracking-widest uppercase text-sm mb-2">Visual Journey</h2>
@@ -365,14 +371,14 @@ export default function Home() {
         </div>
       </section>
       {/* 4. WHY CHOOSE US */}
-      <section className="py-24 bg-background">
+      <section className="py-12 md:py-24 bg-background">
         <div className="container mx-auto px-4 md:px-8">
           <div className="fade-up-section text-center mb-16">
             <h2 className="text-primary font-semibold tracking-widest uppercase text-sm mb-2">Our Promise</h2>
             <h3 className="font-heading text-4xl md:text-5xl font-bold text-foreground">Why Choose Us</h3>
           </div>
 
-          <div className="features-grid grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8" style={{ perspective: "1500px" }}>
+          <div className="features-grid grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-8" style={{ perspective: "1500px" }}>
             {[
               { icon: Leaf, title: "Fresh Ingredients", desc: "We source only the finest, farm-fresh ingredients for every meal." },
               { icon: ChefHat, title: "Expert Chefs", desc: "Our culinary masters bring years of fine dining experience." },
@@ -397,7 +403,7 @@ export default function Home() {
       </section>
 
       {/* 5. RESERVATION CTA */}
-      <section className="relative py-32 bg-card overflow-hidden">
+      <section className="relative py-16 md:py-32 bg-card overflow-hidden">
         <div className="absolute inset-0 w-full h-full">
           <Image
             src="/assets/bg1.webp"
@@ -423,6 +429,8 @@ export default function Home() {
           </div>
         </div>
       </section>
+
+      <FoodModal food={selectedFood} open={isFoodModalOpen} onOpenChange={setIsFoodModalOpen} />
     </div>
   );
 }

@@ -5,6 +5,7 @@ import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
 import { Card, CardContent } from "@/components/ui/card";
 import { ChefHat } from "lucide-react";
+import { FoodModal, Food } from "@/components/FoodModal";
 
 const categories = [
   "All",
@@ -27,6 +28,8 @@ const menuItems = [
 
 export default function Menu() {
   const [activeCategory, setActiveCategory] = useState("All");
+  const [selectedFood, setSelectedFood] = useState<Food | null>(null);
+  const [isFoodModalOpen, setIsFoodModalOpen] = useState(false);
 
   const filteredItems = activeCategory === "All"
     ? menuItems
@@ -62,7 +65,7 @@ export default function Menu() {
       </section>
 
       {/* MENU SECTION */}
-      <section className="py-20 bg-background min-h-screen">
+      <section className="py-10 md:py-20 bg-background min-h-screen">
         <div className="container mx-auto px-4 md:px-8">
 
           {/* Categories Filter */}
@@ -85,7 +88,7 @@ export default function Menu() {
           </div>
 
           {/* Menu Items Grid */}
-          <motion.div layout className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+          <motion.div layout className="grid grid-cols-2 lg:grid-cols-3 gap-4 md:gap-8">
             <AnimatePresence>
               {filteredItems.map((item, i) => (
                 <motion.div
@@ -96,24 +99,27 @@ export default function Menu() {
                   exit={{ opacity: 0, scale: 0.9 }}
                   transition={{ duration: 0.3 }}
                 >
-                  <Card className="bg-card border-border overflow-hidden group cursor-pointer hover:border-primary/50 transition-colors h-full">
-                    <div className="relative h-64 w-full overflow-hidden">
+                  <Card 
+                    className="bg-card border-border overflow-hidden group cursor-pointer hover:border-primary/50 transition-colors h-full flex flex-col"
+                    onClick={() => { setSelectedFood(item as Food); setIsFoodModalOpen(true); }}
+                  >
+                    <div className="relative h-32 sm:h-48 md:h-64 w-full overflow-hidden shrink-0">
                       <Image
                         src={`/assets/${item.img}`}
                         alt={item.name}
                         fill
                         className="object-cover transition-transform duration-700 group-hover:scale-110"
                       />
-                      <div className="absolute top-4 left-4 bg-black/60 backdrop-blur-md px-3 py-1 rounded-full text-xs text-white uppercase tracking-wider border border-white/10 z-10">
+                      <div className="absolute top-2 left-2 md:top-4 md:left-4 bg-black/60 backdrop-blur-md px-2 py-0.5 md:px-3 md:py-1 rounded-full text-[10px] md:text-xs text-white uppercase tracking-wider border border-white/10 z-10">
                         {item.cat}
                       </div>
                     </div>
-                    <CardContent className="p-6 relative">
-                      <div className="absolute -top-6 right-6 w-12 h-12 bg-background border border-border rounded-full flex items-center justify-center text-primary transform transition-transform group-hover:rotate-12 group-hover:bg-primary group-hover:text-white group-hover:border-primary z-10">
-                        <ChefHat size={20} />
+                    <CardContent className="p-3 md:p-6 relative flex-grow flex flex-col">
+                      <div className="absolute -top-4 right-4 md:-top-6 md:right-6 w-8 h-8 md:w-12 md:h-12 bg-background border border-border rounded-full flex items-center justify-center text-primary transform transition-transform group-hover:rotate-12 group-hover:bg-primary group-hover:text-white group-hover:border-primary z-10">
+                        <ChefHat className="w-4 h-4 md:w-5 md:h-5" />
                       </div>
-                      <h4 className="font-heading text-2xl font-bold text-foreground mb-3 pr-8">{item.name}</h4>
-                      <p className="text-muted-foreground text-sm leading-relaxed">{item.desc}</p>
+                      <h4 className="font-heading text-base sm:text-lg md:text-2xl font-bold text-foreground mb-1 md:mb-3 pr-6 md:pr-8">{item.name}</h4>
+                      <p className="text-muted-foreground text-xs md:text-sm leading-snug md:leading-relaxed line-clamp-3 md:line-clamp-none">{item.desc}</p>
                     </CardContent>
                   </Card>
                 </motion.div>
@@ -134,6 +140,8 @@ export default function Menu() {
 
         </div>
       </section>
+
+      <FoodModal food={selectedFood} open={isFoodModalOpen} onOpenChange={setIsFoodModalOpen} />
     </div>
   );
 }
