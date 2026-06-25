@@ -155,23 +155,23 @@ export function ReservationModal({ open, onOpenChange }: { open: boolean, onOpen
                         <FormItem className="flex flex-col">
                           <FormLabel className="text-muted-foreground uppercase tracking-wider text-xs">Reservation Date</FormLabel>
                           <Popover>
-                            <PopoverTrigger asChild>
-                              <FormControl>
+                            <PopoverTrigger 
+                              render={
                                 <Button
                                   variant={"outline"}
                                   className={cn(
                                     "w-full pl-3 text-left font-normal bg-background border-border hover:bg-background/80 hover:text-foreground",
                                     !field.value && "text-muted-foreground"
                                   )}
-                                >
-                                  {field.value ? (
-                                    format(field.value, "PPP")
-                                  ) : (
-                                    <span>Pick a date</span>
-                                  )}
-                                  <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
-                                </Button>
-                              </FormControl>
+                                />
+                              }
+                            >
+                              {field.value ? (
+                                format(field.value, "PPP")
+                              ) : (
+                                <span>Pick a date</span>
+                              )}
+                              <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
                             </PopoverTrigger>
                             <PopoverContent className="w-auto p-0 z-[100]" align="start">
                               <Calendar
@@ -181,7 +181,6 @@ export function ReservationModal({ open, onOpenChange }: { open: boolean, onOpen
                                 disabled={(date) =>
                                   date < new Date(new Date().setHours(0, 0, 0, 0))
                                 }
-                                initialFocus
                               />
                             </PopoverContent>
                           </Popover>
