@@ -40,7 +40,7 @@ const formSchema = z.object({
   phone: z.string().min(10, "Valid phone number is required"),
   email: z.string().email("Valid email address is required"),
   date: z.date({
-    required_error: "A reservation date is required.",
+    message: "A reservation date is required.",
   }),
   time: z.string().min(1, "Please select a time slot"),
   guests: z.number().min(1).max(20),
