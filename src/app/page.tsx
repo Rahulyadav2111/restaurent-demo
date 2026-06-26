@@ -3,9 +3,8 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useRef, useState, useEffect } from "react";
-import { Card, CardContent } from "@/components/ui/card";
+import { ArrowRight, Clock, Leaf, MapPin, Star } from "lucide-react";
 import { FoodModal, Food } from "@/components/FoodModal";
-import { Leaf, ChefHat, GlassWater, Users, Clock, Award, Star } from "lucide-react";
 import AnimatedCounter from "@/components/AnimatedCounter";
 
 import gsap from "gsap";
@@ -16,438 +15,279 @@ if (typeof window !== "undefined") {
   gsap.registerPlugin(ScrollTrigger, useGSAP);
 }
 
-const BACKGROUND_IMAGES = [
-  "/assets/bg_main.webp",
-  "/assets/inner_main.webp",
-  "/assets/inner1.webp",
-  "/assets/inner2.webp",
-  "/assets/dinning.webp",
-  "/assets/bg1.webp",
-  "/assets/outdoor.jpg"
+const dishes = [
+  { img: "dish1.webp", name: "Paneer Tikka Masala", cat: "Paneer Specials" },
+  { img: "dish4.webp", name: "Tandoori Soya Chaap", cat: "Veg Tandoori Platter" },
+  { img: "dish3.webp", name: "Steamed Yellow Dumplings", cat: "Yellow Dumplings" },
+  { img: "drink1.webp", name: "Mango Mocktail", cat: "Beverages" },
 ];
 
+const gallery = ["inner1.webp", "inner3.webp", "dinning.webp", "outdoor.jpg"];
+
+const heroImages = ["bg_main.webp", "inner1.webp", "inner3.webp", "dinning.webp", "outdoor.jpg"];
+
 export default function Home() {
-  const containerRef = useRef<HTMLDivElement>(null);
+  const pageRef = useRef<HTMLDivElement>(null);
   const [selectedFood, setSelectedFood] = useState<Food | null>(null);
   const [isFoodModalOpen, setIsFoodModalOpen] = useState(false);
-  const [currentBgIndex, setCurrentBgIndex] = useState(0);
+  const [currentImageIndex, setCurrentImageIndex] = useState(0);
 
+  // Hero Image Slider
   useEffect(() => {
     const interval = setInterval(() => {
-      setCurrentBgIndex((prev) => (prev + 1) % BACKGROUND_IMAGES.length);
-    }, 2000);
+      setCurrentImageIndex((prev) => (prev + 1) % heroImages.length);
+    }, 3000);
     return () => clearInterval(interval);
   }, []);
 
   useGSAP(() => {
-    // 1. Hero Animations
-    const tl = gsap.timeline();
-    
-    tl.fromTo(".hero-badge", 
-      { opacity: 0, scale: 0.8 }, 
-      { opacity: 1, scale: 1, duration: 1, ease: "power4.out", delay: 0.1 }
-    )
-    .fromTo(".hero-title-word",
-      { opacity: 0, y: 100, rotateX: -45 },
-      { opacity: 1, y: 0, rotateX: 0, duration: 1.2, stagger: 0.1, ease: "expo.out" },
-      "-=0.6"
-    )
-    .fromTo(".hero-desc",
-      { opacity: 0, y: 30 },
-      { opacity: 1, y: 0, duration: 1, ease: "power3.out" },
-      "-=0.8"
-    )
-    .fromTo(".hero-btns",
-      { opacity: 0, y: 20 },
-      { opacity: 1, y: 0, duration: 0.8, ease: "power2.out" },
-      "-=0.6"
-    )
-    .fromTo(".scroll-indicator",
-      { opacity: 0 },
-      { opacity: 1, duration: 1 },
-      "-=0.4"
-    );
+    const ease = "power3.out";
 
-    // Parallax hero background (Desktop only)
-    let mm = gsap.matchMedia();
-    mm.add("(min-width: 768px)", () => {
-      gsap.to(".hero-bg", {
-        yPercent: 20,
-        ease: "none",
+    gsap.timeline()
+      .fromTo(".hero-reveal", { y: 20, opacity: 0 }, { y: 0, opacity: 1, duration: 0.85, stagger: 0.12, ease, delay: 0.4 });
+
+    gsap.utils.toArray<HTMLElement>(".fade-up").forEach((el) => {
+      gsap.fromTo(el, { y: 46, opacity: 0 }, {
+        y: 0,
+        opacity: 1,
+        duration: 0.8,
+        ease,
         scrollTrigger: {
-          trigger: ".hero-section",
-          start: "top top",
-          end: "bottom top",
-          scrub: true
-        }
+          trigger: el,
+          start: "top 78%",
+          toggleActions: "play none none reverse",
+        },
       });
     });
 
-    // 2. Scroll Fade Up Animations
-    gsap.utils.toArray<HTMLElement>(".fade-up-section").forEach(section => {
-      gsap.fromTo(section, 
-        { opacity: 0, y: 80 },
-        { 
-          opacity: 1, 
-          y: 0, 
-          duration: 1.2, 
-          ease: "power3.out",
-          scrollTrigger: {
-            trigger: section,
-            start: "top 85%",
-            toggleActions: "play none none reverse"
-          }
-        }
-      );
+    gsap.utils.toArray<HTMLElement>(".stagger").forEach((group) => {
+      gsap.fromTo(group.children, { y: 46, opacity: 0 }, {
+        y: 0,
+        opacity: 1,
+        duration: 0.8,
+        stagger: 0.14,
+        ease,
+        scrollTrigger: {
+          trigger: group,
+          start: "top 78%",
+        },
+      });
     });
 
-    // 3. Staggered Cards (Dishes)
-    gsap.fromTo(".dish-card",
-      { opacity: 0, y: 100, scale: 0.95 },
-      { 
-        opacity: 1, 
-        y: 0, 
-        scale: 1, 
-        duration: 0.8, 
-        stagger: 0.15,
-        ease: "back.out(1.2)",
-        scrollTrigger: {
-          trigger: ".dishes-grid",
-          start: "top 80%",
-        }
-      }
-    );
+    gsap.utils.toArray<HTMLElement>(".photo-reveal").forEach((frame) => {
+      const img = frame.querySelector("img");
+      if (!img) return;
 
-    // 4. Staggered Features
-    gsap.fromTo(".feature-card",
-      { opacity: 0, scale: 0.8, rotationY: 45 },
-      { 
-        opacity: 1, 
-        scale: 1, 
-        rotationY: 0,
-        duration: 0.8, 
-        stagger: 0.1,
-        ease: "power3.out",
+      gsap.fromTo(img, { scale: 1.08, opacity: 0.6 }, {
+        scale: 1,
+        opacity: 1,
+        duration: 1,
+        ease,
         scrollTrigger: {
-          trigger: ".features-grid",
-          start: "top 80%",
-        }
-      }
-    );
+          trigger: frame,
+          start: "top 82%",
+        },
+      });
+    });
 
-    // 5. Image Reveal Effect
-    gsap.fromTo(".reveal-img-container",
-      { clipPath: "inset(100% 0 0 0)" },
-      { 
-        clipPath: "inset(0% 0 0 0)", 
-        duration: 1.5, 
-        ease: "power4.inOut",
+    // Overlap animation: Slow down the sections as we scroll down to create parallax stacking
+    gsap.utils.toArray<HTMLElement>(".overlap-section").forEach((section) => {
+      gsap.to(section, {
+        yPercent: 30, // Section moves down 30% of its height, appearing to scroll slower
+        ease: "none",
         scrollTrigger: {
-          trigger: ".reveal-img-container",
-          start: "top 80%",
-        }
-      }
-    );
-    gsap.fromTo(".reveal-img",
-      { scale: 1.3 },
-      { 
-        scale: 1, 
-        duration: 1.5, 
-        ease: "power4.inOut",
-        scrollTrigger: {
-          trigger: ".reveal-img-container",
-          start: "top 80%",
-        }
-      }
-    );
+          trigger: section,
+          start: "top top",
+          end: "bottom top",
+          scrub: true,
+        },
+      });
+    });
 
-  }, { scope: containerRef });
+    // Pin the static section properly
+    ScrollTrigger.create({
+      trigger: ".static-image-container",
+      start: "top top",
+      end: "+=50%",
+      pin: true,
+      pinSpacing: false,
+    });
+  }, { scope: pageRef });
 
   return (
-    <div className="flex flex-col w-full -mt-24" ref={containerRef}>
-      {/* 1. HERO SECTION */}
-      <section className="hero-section relative h-[100dvh] min-h-[500px] md:h-screen md:min-h-[600px] flex items-center justify-center overflow-hidden">
-        <div className="absolute inset-0 w-full h-full overflow-hidden">
-          <div className="hero-bg absolute inset-0 w-full h-full md:h-[120%] md:-top-[10%] bg-black">
-            {BACKGROUND_IMAGES.map((src, index) => (
-              <Image
-                key={src}
-                src={src}
-                alt={`House of Hunger Ambience ${index + 1}`}
-                fill
-                priority={index === 0}
-                className={`object-cover object-[center_30%] md:object-center transition-all duration-[3000ms] ease-in-out ${
-                  index === currentBgIndex ? "opacity-100 scale-100" : "opacity-0 scale-110"
-                }`}
-                quality={100}
-              />
-            ))}
-          </div>
-          <div className="absolute inset-0 bg-black/60 md:bg-black/50 z-10" />
-        </div>
-        
-        <div className="container relative z-20 px-4 flex flex-col items-center text-center mt-20" style={{ perspective: "1000px" }}>
-          <div className="hero-badge mb-6">
-            <span className="text-primary font-semibold tracking-[0.3em] uppercase text-sm md:text-base bg-background/90 px-4 py-2 rounded-full">
-              Welcome to
-            </span>
-          </div>
-          
-          <h1 className="font-heading text-5xl md:text-7xl lg:text-8xl font-bold text-white mb-6 drop-shadow-2xl overflow-hidden flex gap-4 flex-wrap justify-center">
-            <span className="hero-title-word inline-block">House</span>
-            <span className="hero-title-word inline-block text-primary italic">of</span>
-            <span className="hero-title-word inline-block">Hunger</span>
-          </h1>
-          
-          <p className="hero-desc text-lg md:text-2xl text-white/90 max-w-2xl font-light mb-10">
-            Experience Exceptional Dining in Kichha. Where unforgettable flavors, premium hospitality, and beautiful ambience come together.
-          </p>
-          
-          <div className="hero-btns flex flex-col sm:flex-row gap-4">
-            <button
-              onClick={() => window.dispatchEvent(new Event('open-reservation'))}
-              className="bg-primary hover:bg-primary/90 text-white px-8 py-4 rounded-full text-sm uppercase tracking-widest font-semibold transition-all hover:scale-105 hover:shadow-[0_0_30px_rgba(255,45,117,0.5)]"
-            >
-              Reserve Table
-            </button>
-            <Link
-              href="/menu"
-              className="bg-transparent border border-white/30 hover:border-white hover:bg-white/10 text-white px-8 py-4 rounded-full text-sm uppercase tracking-widest font-semibold transition-all backdrop-blur-sm"
-            >
-              Explore Menu
-            </Link>
-          </div>
-        </div>
-
-        {/* Scroll Indicator */}
-        <div className="scroll-indicator absolute bottom-10 left-1/2 -translate-x-1/2 z-20 flex flex-col items-center gap-2">
-          <div className="w-px h-12 bg-gradient-to-b from-primary to-transparent animate-pulse" />
-        </div>
-      </section>
-
-      {/* 2. SIGNATURE EXPERIENCE */}
-      <section className="py-12 md:py-24 bg-background relative z-20">
-        <div className="container mx-auto px-4 md:px-8">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 md:gap-16 items-center">
-            <div className="fade-up-section space-y-8">
-              <div>
-                <h2 className="text-primary font-semibold tracking-widest uppercase text-sm mb-2">Signature Experience</h2>
-                <h3 className="font-heading text-4xl md:text-5xl font-bold text-foreground mb-6">A Taste of Luxury</h3>
-                <p className="text-muted-foreground text-lg leading-relaxed">
-                  Every dish at House of Hunger is crafted with passion. We source the freshest ingredients to bring you authentic flavors, prepared by expert chefs who understand the art of fine dining. Join us for a memorable experience filled with exceptional hospitality.
-                </p>
-              </div>
-
-              <div className="grid grid-cols-2 gap-8 pt-8 border-t border-border/50">
-                <div>
-                  <h4 className="text-4xl font-bold text-foreground mb-2"><AnimatedCounter value={5000} />+</h4>
-                  <p className="text-muted-foreground text-sm uppercase tracking-wider">Happy Guests</p>
-                </div>
-                <div>
-                  <h4 className="text-4xl font-bold text-foreground mb-2"><AnimatedCounter value={50} />+</h4>
-                  <p className="text-muted-foreground text-sm uppercase tracking-wider">Signature Dishes</p>
-                </div>
-                <div>
-                  <h4 className="text-4xl font-bold text-foreground mb-2">4.5+</h4>
-                  <p className="text-muted-foreground text-sm uppercase tracking-wider">Customer Rating</p>
-                </div>
-                <div>
-                  <h4 className="text-4xl font-bold text-foreground mb-2"><AnimatedCounter value={100} />+</h4>
-                  <p className="text-muted-foreground text-sm uppercase tracking-wider">Events Hosted</p>
-                </div>
-              </div>
-            </div>
-
-            <div className="reveal-img-container relative h-[600px] w-full rounded-2xl overflow-hidden group">
-              <div className="absolute inset-0 w-full h-full overflow-hidden">
-                <Image
-                  src="/assets/inner_main.webp"
-                  alt="Luxury Dining Experience"
-                  fill
-                  className="reveal-img object-cover transition-transform duration-[2s] group-hover:scale-105"
-                />
-              </div>
-              <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-80" />
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* 3. FEATURED DISHES */}
-      <section className="py-12 md:py-24 bg-muted/50 border-y border-border">
-        <div className="container mx-auto px-4 md:px-8">
-          <div className="fade-up-section text-center mb-16">
-            <h2 className="text-primary font-semibold tracking-widest uppercase text-sm mb-2">Culinary Masterpieces</h2>
-            <h3 className="font-heading text-4xl md:text-5xl font-bold text-foreground">Featured Dishes</h3>
-          </div>
-
-          <div className="dishes-grid grid grid-cols-2 lg:grid-cols-3 gap-4 md:gap-8">
-            {[
-              { img: "dish1.webp", name: "Paneer Tikka Masala", cat: "Paneer Specials" },
-              { img: "dish2.webp", name: "Hawaiian chicken salad", cat: "Hawaiian salad" },
-              { img: "dish3.webp", name: "steamed yellow dumplings", cat: "yellow dumplings (momos)" },
-              { img: "dish4.webp", name: "Tandoori Soya Chaap", cat: "Veg Tandoori Platter" },
-              { img: "dish5.webp", name: " Veg Spring Rolls", cat: "Spring Rolls" },
-              { img: "drink1.webp", name: "Mango Mocktail", cat: "Beverages" }
-            ].map((dish, i) => (
-              <div key={i} className="dish-card" onClick={() => { setSelectedFood(dish); setIsFoodModalOpen(true); }}>
-                <Card className="bg-background border-border overflow-hidden group cursor-pointer hover:border-primary/50 hover:shadow-xl transition-all duration-500 h-full flex flex-col">
-                  <div className="relative h-32 sm:h-48 md:h-64 w-full overflow-hidden shrink-0">
-                    <Image
-                      src={`/assets/${dish.img}`}
-                      alt={dish.name}
-                      fill
-                      className="object-cover transition-transform duration-[1.5s] group-hover:scale-110"
-                    />
-                    <div className="absolute top-2 left-2 md:top-4 md:left-4 bg-black/60 backdrop-blur-md px-2 py-0.5 md:px-3 md:py-1 rounded-full text-[10px] md:text-xs text-white uppercase tracking-wider border border-white/10 z-10">
-                      {dish.cat}
-                    </div>
-                  </div>
-                  <CardContent className="p-3 md:p-6 relative flex-grow flex flex-col">
-                    <div className="absolute -top-4 right-4 md:-top-6 md:right-6 w-8 h-8 md:w-12 md:h-12 bg-primary rounded-full flex items-center justify-center text-white shadow-lg shadow-primary/30 transform transition-all duration-500 group-hover:rotate-[360deg] group-hover:scale-110 z-10">
-                      <ChefHat className="w-4 h-4 md:w-5 md:h-5" />
-                    </div>
-                    <h4 className="font-heading text-base sm:text-lg md:text-2xl font-bold text-foreground mb-1 md:mb-2 pr-6">{dish.name}</h4>
-                    <p className="text-muted-foreground text-xs md:text-sm line-clamp-3 md:line-clamp-none">Experience the authentic taste of our chef's special preparation, made with premium ingredients.</p>
-                  </CardContent>
-                </Card>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-      {/* OUR AMBIANCE */}
-      <section className="py-12 md:py-24 bg-background overflow-hidden">
-        <div className="container mx-auto px-4 md:px-8">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 md:gap-16 items-center flex-row-reverse lg:flex-row-reverse">
-            <div className="fade-up-section space-y-8 lg:pl-10 order-2 lg:order-1">
-              <div>
-                <h2 className="text-primary font-semibold tracking-widest uppercase text-sm mb-2">Beautiful Spaces</h2>
-                <h3 className="font-heading text-4xl md:text-5xl font-bold text-foreground mb-6">Designed for Comfort</h3>
-                <p className="text-muted-foreground text-lg leading-relaxed mb-6">
-                  Whether you're looking for a cozy corner for a romantic dinner or a spacious area for family gatherings, House of Hunger offers the perfect setting. Our spaces are meticulously crafted to enhance your dining experience.
-                </p>
-                <ul className="space-y-4">
-                  {[
-                    "Elegant indoor dining with air conditioning",
-                    "Beautiful outdoor seating arrangements",
-                    "Perfect for parties and corporate events"
-                  ].map((item, i) => (
-                    <li key={i} className="flex items-center gap-3">
-                      <div className="w-6 h-6 rounded-full bg-primary/20 flex items-center justify-center text-primary flex-shrink-0">
-                        <Star size={12} fill="currentColor" />
-                      </div>
-                      <span className="text-foreground font-medium">{item}</span>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            </div>
-
-            <div className="reveal-img-container relative h-[500px] w-full rounded-2xl overflow-hidden group shadow-2xl order-1 lg:order-2">
-              <Image
-                src="/assets/inner1.webp"
-                alt="Restaurant Ambiance"
-                fill
-                className="reveal-img object-cover transition-transform duration-[2s] group-hover:scale-105"
-              />
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* GALLERY CAROUSEL */}
-      <section className="py-12 md:py-24 bg-muted/30 overflow-hidden border-y border-border">
-        <div className="container mx-auto px-4 md:px-8 mb-12 flex justify-between items-end fade-up-section">
-          <div>
-            <h2 className="text-primary font-semibold tracking-widest uppercase text-sm mb-2">Visual Journey</h2>
-            <h3 className="font-heading text-4xl md:text-5xl font-bold text-foreground">Gallery Highlights</h3>
-          </div>
-          <Link href="/gallery" className="hidden md:inline-block text-primary font-medium hover:underline tracking-wide uppercase text-sm">
-            View All
-          </Link>
-        </div>
-
-        <div className="w-full flex gap-6 px-4 md:px-8 overflow-x-auto pb-8 snap-x snap-mandatory" style={{ scrollbarWidth: 'none' }}>
-          {[
-            "inner3.webp",
-            "inner4.webp",
-            "dinning.webp",
-            "outdoor.jpg",
-            "inner1.webp",
-          ].map((img, i) => (
-            <div key={i} className="relative min-w-[85vw] md:min-w-[400px] h-[350px] md:h-[450px] rounded-2xl overflow-hidden snap-center group flex-shrink-0 shadow-lg">
-              <Image
-                src={`/assets/${img}`}
-                alt="Gallery highlight"
-                fill
-                className="object-cover transition-transform duration-700 group-hover:scale-110"
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-60 group-hover:opacity-40 transition-opacity duration-500" />
-            </div>
+    <div ref={pageRef} className="-mt-24 bg-[#FFFFFF]">
+      {/* Home Main Section - 70vh */}
+      <section className="hero relative h-[70vh] min-h-[500px] overflow-hidden bg-[#FFFFFF] overlap-section z-0">
+        <div className="hero-photo absolute inset-0 h-[120%]">
+          {heroImages.map((src, index) => (
+            <Image
+              key={src}
+              src={`/assets/${src}`}
+              alt={`House of Hunger ambience ${index + 1}`}
+              fill
+              priority={index === 0}
+              className={`object-cover object-center transition-all duration-[3000ms] ease-in-out ${
+                index === currentImageIndex ? "opacity-100 scale-100" : "opacity-0 scale-105"
+              }`}
+              quality={100}
+            />
           ))}
+          <div className="absolute inset-0 bg-black/50 transition-all duration-1000" />
         </div>
-        <div className="container mx-auto px-4 mt-4 md:hidden text-center fade-up-section">
-          <Link href="/gallery" className="inline-block text-primary font-medium hover:underline tracking-wide uppercase text-sm">
-            View Full Gallery
-          </Link>
-        </div>
-      </section>
-      {/* 4. WHY CHOOSE US */}
-      <section className="py-12 md:py-24 bg-background">
-        <div className="container mx-auto px-4 md:px-8">
-          <div className="fade-up-section text-center mb-16">
-            <h2 className="text-primary font-semibold tracking-widest uppercase text-sm mb-2">Our Promise</h2>
-            <h3 className="font-heading text-4xl md:text-5xl font-bold text-foreground">Why Choose Us</h3>
-          </div>
 
-          <div className="features-grid grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-8" style={{ perspective: "1500px" }}>
-            {[
-              { icon: Leaf, title: "Fresh Ingredients", desc: "We source only the finest, farm-fresh ingredients for every meal." },
-              { icon: ChefHat, title: "Expert Chefs", desc: "Our culinary masters bring years of fine dining experience." },
-              { icon: Award, title: "Premium Ambience", desc: "A luxurious setting perfect for family dining and celebrations." },
-              { icon: Users, title: "Family Friendly", desc: "Warm hospitality that makes everyone feel right at home." },
-              { icon: Clock, title: "Fast Service", desc: "Prompt and courteous service without compromising quality." },
-              { icon: Star, title: "Quality Food", desc: "Uncompromising standards in taste, hygiene, and presentation." },
-            ].map((feature, i) => (
-              <div
-                key={i}
-                className="feature-card bg-card p-8 rounded-2xl border border-border hover:border-primary/30 transition-all duration-300 hover:-translate-y-2 hover:shadow-xl group"
-              >
-                <div className="w-16 h-16 bg-muted rounded-full flex items-center justify-center mb-6 group-hover:bg-primary transition-colors duration-500">
-                  <feature.icon className="text-primary group-hover:text-white transition-colors duration-500" size={32} />
-                </div>
-                <h4 className="text-xl font-bold text-foreground mb-3">{feature.title}</h4>
-                <p className="text-muted-foreground">{feature.desc}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* 5. RESERVATION CTA */}
-      <section className="relative py-16 md:py-32 bg-card overflow-hidden">
-        <div className="absolute inset-0 w-full h-full">
-          <Image
-            src="/assets/bg1.webp"
-            alt="Reserve Table"
-            fill
-            className="object-cover"
-          />
-          <div className="absolute inset-0 bg-black/70" />
-        </div>
-        
-        <div className="container relative z-10 mx-auto px-4 text-center">
-          <div className="fade-up-section">
-            <h2 className="font-heading text-4xl md:text-6xl font-bold text-white mb-6">Reserve Your Table Today</h2>
-            <p className="text-lg md:text-xl text-white/80 max-w-2xl mx-auto mb-10">
-              Join us for an unforgettable dining experience. Book your table in advance to ensure the perfect spot for your gathering.
+        <div className="editorial-container relative z-10 flex h-full flex-col items-center justify-center pt-24 text-center">
+          <p className="hero-reveal mb-3 text-xs font-semibold uppercase tracking-[0.32em] text-white/80">
+            Kichha, Uttarakhand
+          </p>
+          {/* Text size small, centered, and highlighted */}
+          <h1 className="hero-reveal max-w-3xl font-heading text-3xl sm:text-4xl md:text-5xl font-bold leading-tight text-white">
+            <span className="bg-[#B88B4A] text-white px-4 py-1 leading-relaxed rounded-sm inline-block">House of Hunger</span>
+          </h1>
+          <div className="hero-reveal mt-6 flex flex-col items-center gap-5">
+            <p className="max-w-xl text-center text-sm md:text-base leading-7 text-white/90 font-medium">
+              A polished dining room for generous plates, slow evenings, and warm hospitality.
             </p>
             <button
-              onClick={() => window.dispatchEvent(new Event('open-reservation'))}
-              className="inline-block bg-primary hover:bg-primary/90 text-white px-10 py-5 rounded-full text-lg uppercase tracking-widest font-semibold transition-all duration-500 hover:scale-105 hover:shadow-[0_0_40px_rgba(255,45,117,0.6)]"
+              onClick={() => window.dispatchEvent(new Event("open-reservation"))}
+              className="editorial-button editorial-button-dark text-white border-white hover:bg-white hover:text-[#1C1C1C]"
             >
-              Book Now
+              <span>Book Table</span>
+              <ArrowRight size={16} />
+            </button>
+          </div>
+        </div>
+      </section>
+
+      <section className="relative z-10 bg-[#FFFFFF] py-8 border-y border-[#E5E5E5] overlap-section">
+        <div className="editorial-container flex flex-col items-center justify-center gap-3 text-center text-xs font-semibold uppercase tracking-[0.22em] text-[#6B6B6B] sm:flex-row">
+          <MapPin size={16} className="text-[#8D7553]" />
+          <span>Rudrapur Road, Opposite HDFC Bank, Kichha, Uttarakhand</span>
+        </div>
+      </section>
+
+      <section className="relative z-20 bg-[#FFFFFF] py-20 md:py-[130px] overlap-section border-t border-[#E5E5E5]">
+        <div className="editorial-container grid gap-14 lg:grid-cols-12 lg:items-center">
+          <div className="photo-reveal relative h-[68vh] min-h-[430px] overflow-hidden lg:col-span-7">
+            <Image src="/assets/inner_main.webp" alt="Restaurant interior" fill className="object-cover" />
+          </div>
+          <div className="fade-up lg:col-span-5">
+            <p className="editorial-eyebrow mb-6">The Room</p>
+            <h2 className="font-heading text-4xl font-bold leading-[1.1] text-foreground md:text-6xl">
+              Designed for quiet appetite.
+            </h2>
+            <p className="mt-8 text-base leading-8 text-muted-foreground">
+              Clean lines, warm light, and comfortable tables. The space feels premium without trying too hard.
+            </p>
+            <div className="mt-10 grid grid-cols-2 gap-8 border-t border-foreground/15 pt-8">
+              <div>
+                <p className="font-heading text-5xl font-light text-[#8D7553]"><AnimatedCounter value={5000} />+</p>
+                <p className="mt-2 text-xs uppercase tracking-[0.2em] text-muted-foreground">Guests</p>
+              </div>
+              <div>
+                <p className="font-heading text-5xl font-light text-[#8D7553]"><AnimatedCounter value={50} />+</p>
+                <p className="mt-2 text-xs uppercase tracking-[0.2em] text-muted-foreground">Dishes</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section className="relative z-30 bg-[#F9F9F9] py-20 text-[#1C1C1C] md:py-[130px] overlap-section border-t border-[#E5E5E5]">
+        <div className="editorial-container">
+          <div className="fade-up mb-14 max-w-3xl">
+            <p className="mb-6 text-xs font-semibold uppercase tracking-[0.28em] text-[#B88B4A]">Menu Edit</p>
+            <h2 className="font-heading text-4xl font-bold leading-[1.1] md:text-6xl">
+              Familiar dishes, dressed with restraint.
+            </h2>
+          </div>
+
+          <div className="stagger grid gap-10 md:grid-cols-2 lg:grid-cols-4">
+            {dishes.map((dish, index) => (
+              <button
+                key={dish.name}
+                onClick={() => { setSelectedFood(dish); setIsFoodModalOpen(true); }}
+                className={`group text-left ${index % 2 ? "lg:pt-16" : ""}`}
+              >
+                <div className="photo-reveal relative h-[380px] overflow-hidden">
+                  <Image src={`/assets/${dish.img}`} alt={dish.name} fill className="object-cover transition-transform duration-700 group-hover:scale-[1.04]" />
+                </div>
+                <p className="mt-6 text-xs font-semibold uppercase tracking-[0.22em] text-[#B88B4A]">{dish.cat}</p>
+                <h3 className="mt-3 font-heading text-2xl font-bold">{dish.name}</h3>
+              </button>
+            ))}
+          </div>
+
+          <Link href="/menu" className="editorial-button editorial-button-dark mt-14 text-[#1C1C1C]">
+            <span>Explore Menu</span>
+            <ArrowRight size={16} />
+          </Link>
+        </div>
+      </section>
+
+      {/* Static image section that doesn't scroll */}
+      <section className="static-image-container relative z-10 h-screen bg-[#1C1C1C]">
+        <div className="h-full w-full flex items-center justify-center">
+          <div className="relative w-full h-full">
+            <Image src="/assets/dinning.webp" alt="Static dining room image" fill className="object-cover" quality={100} />
+            <div className="absolute inset-0 bg-black/20"></div>
+          </div>
+        </div>
+      </section>
+
+      {/* This section hides the static image by scrolling over it with a solid background and higher z-index */}
+      <section className="relative z-40 bg-[#FFFFFF] py-20 md:py-[130px] overlap-section border-t border-[#E5E5E5]">
+        <div className="editorial-container grid gap-14 lg:grid-cols-12">
+          <div className="fade-up lg:col-span-4">
+            <p className="editorial-eyebrow mb-6">Gallery</p>
+            <h2 className="font-heading text-4xl font-bold leading-[1.1] md:text-6xl">
+              A room worth looking at.
+            </h2>
+            <p className="mt-8 text-base leading-8 text-[#6B6B6B]">
+              The fixed image stays behind you while this section covers it, keeping the scroll cinematic without clutter.
+            </p>
+          </div>
+          <div className="stagger grid gap-4 md:grid-cols-2 lg:col-span-8">
+            {gallery.map((img, index) => (
+              <div key={img} className={`photo-reveal relative overflow-hidden ${index === 0 ? "h-[520px]" : "h-[360px]"} ${index === 1 ? "md:mt-16" : ""}`}>
+                <Image src={`/assets/${img}`} alt="House of Hunger ambience" fill className="object-cover" />
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Grid Section with #1C1311 background */}
+      <section className="relative z-50 bg-[#1C1311] py-20 text-white md:py-[130px] overlap-section border-t border-[#E5E5E5]">
+        <div className="editorial-container">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            {[
+              { icon: Leaf, title: "Fresh Ingredients", desc: "Balanced dishes made with dependable produce." },
+              { icon: Star, title: "Premium Ambience", desc: "Warm interiors, sharp photography, and clean spacing." },
+              { icon: Clock, title: "Smooth Service", desc: "A calm pace for meals, celebrations, and family tables." },
+            ].map((item) => (
+              <div key={item.title} className="bg-[#2a1d1a] border border-white/10 p-10 hover:bg-[#332320] transition-colors duration-300">
+                <item.icon className="mb-8 text-[#B88B4A]" size={36} />
+                <h3 className="font-heading text-2xl font-bold mb-4">{item.title}</h3>
+                <p className="leading-7 text-white/70 text-sm">{item.desc}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      <section className="relative z-50 bg-[#FFFFFF] py-20 md:py-[130px] overlap-section border-t border-[#E5E5E5]">
+        <div className="editorial-container text-center">
+          <div className="fade-up mx-auto max-w-3xl">
+            <p className="editorial-eyebrow mb-6">Reservations</p>
+            <h2 className="font-heading text-4xl font-bold leading-[1.1] md:text-6xl text-[#1C1C1C]">
+              Book the table. Keep the evening simple.
+            </h2>
+            <button
+              onClick={() => window.dispatchEvent(new Event("open-reservation"))}
+              className="editorial-button mx-auto mt-10 text-[#1C1C1C] border-[#1C1C1C]"
+            >
+              <span>Reserve Now</span>
+              <ArrowRight size={16} />
             </button>
           </div>
         </div>

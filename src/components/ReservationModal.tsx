@@ -96,7 +96,7 @@ export function ReservationModal({ open, onOpenChange }: { open: boolean, onOpen
           <div className="p-6 md:p-8">
             <Form {...form}>
               <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
                   {/* Personal Details */}
                   <div className="space-y-6">
                     <h3 className="text-xl font-heading font-semibold text-foreground border-b border-border/50 pb-2">Personal Details</h3>
@@ -203,9 +203,9 @@ export function ReservationModal({ open, onOpenChange }: { open: boolean, onOpen
                                   type="button"
                                   onClick={() => field.onChange(time)}
                                   className={cn(
-                                    "px-2 py-1.5 text-xs border rounded-md transition-colors",
+                                    "px-2 py-1.5 text-xs border rounded-sm transition-colors",
                                     field.value === time
-                                      ? "bg-primary border-primary text-white"
+                                      ? "bg-primary border-primary text-foreground"
                                       : "bg-background border-border text-muted-foreground hover:border-primary/50"
                                   )}
                                 >
@@ -277,14 +277,14 @@ export function ReservationModal({ open, onOpenChange }: { open: boolean, onOpen
                   <Button
                     type="submit"
                     disabled={isSubmitting}
-                    className="w-full py-6 rounded-full text-md uppercase tracking-widest font-semibold bg-primary hover:bg-primary/90 text-white transition-all shadow-[0_0_20px_rgba(255,45,117,0.3)] hover:shadow-[0_0_30px_rgba(255,45,117,0.5)]"
+                    className="w-full py-6 rounded-sm text-md uppercase tracking-widest font-semibold bg-primary hover:bg-primary/90 text-foreground transition-all shadow-[0_0_20px_rgba(255,45,117,0.3)] hover:shadow-[0_0_30px_rgba(255,45,117,0.5)]"
                   >
                     {isSubmitting ? (
                       <span className="flex items-center gap-2">
                         <motion.div
                           animate={{ rotate: 360 }}
                           transition={{ repeat: Infinity, duration: 1, ease: "linear" }}
-                          className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full"
+                          className="w-5 h-5 border-2 border-foreground/30 border-t-white rounded-sm"
                         />
                         Processing...
                       </span>
@@ -307,13 +307,13 @@ export function ReservationModal({ open, onOpenChange }: { open: boolean, onOpen
               initial={{ scale: 0 }}
               animate={{ scale: 1 }}
               transition={{ type: "spring", stiffness: 200, damping: 15 }}
-              className="w-24 h-24 bg-primary/20 rounded-full flex items-center justify-center mb-6 relative"
+              className="w-24 h-24 bg-primary/20 rounded-sm flex items-center justify-center mb-6 relative"
             >
               <motion.div
                 initial={{ scale: 0 }}
                 animate={{ scale: 1 }}
                 transition={{ delay: 0.2, type: "spring", stiffness: 200, damping: 15 }}
-                className="absolute inset-0 bg-primary/20 rounded-full animate-ping opacity-75"
+                className="absolute inset-0 bg-primary/20 rounded-sm animate-ping opacity-75"
               />
               <CheckCircle2 size={48} className="text-primary relative z-10" />
             </motion.div>
@@ -330,7 +330,7 @@ export function ReservationModal({ open, onOpenChange }: { open: boolean, onOpen
             </motion.div>
           </div>
           <div className="p-6 bg-card flex justify-center">
-            <Button onClick={handleSuccessClose} className="w-full bg-primary text-white hover:bg-primary/90 py-6 rounded-xl uppercase tracking-wider font-semibold transition-all hover:scale-[1.02] hover:shadow-[0_0_20px_rgba(255,45,117,0.3)]">
+            <Button onClick={handleSuccessClose} className="w-full bg-primary text-foreground hover:bg-primary/90 py-6 rounded-sm uppercase tracking-wider font-semibold transition-all hover:scale-[1.02] hover:shadow-[0_0_20px_rgba(255,45,117,0.3)]">
               Awesome!
             </Button>
           </div>

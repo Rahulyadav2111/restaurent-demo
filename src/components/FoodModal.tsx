@@ -22,7 +22,7 @@ export function FoodModal({ food, open, onOpenChange }: FoodModalProps) {
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="bg-card border-border sm:max-w-[425px] overflow-hidden p-0 rounded-2xl w-[90vw]">
+      <DialogContent className="bg-card border-border sm:max-w-[425px] overflow-hidden p-0 rounded-sm w-[90vw]">
         <div className="relative h-48 sm:h-64 w-full">
           <Image
             src={`/assets/${food.img}`}
@@ -30,12 +30,12 @@ export function FoodModal({ food, open, onOpenChange }: FoodModalProps) {
             fill
             className="object-cover"
           />
-          <div className="absolute top-4 left-4 bg-black/60 backdrop-blur-md px-3 py-1 rounded-full text-xs text-white uppercase tracking-wider border border-white/10 z-10">
+          <div className="absolute top-4 left-4 bg-background/60 backdrop-blur-md px-3 py-1 rounded-sm text-xs text-foreground uppercase tracking-wider border border-foreground/10 z-10">
             {food.cat}
           </div>
         </div>
         <div className="p-6 relative">
-          <div className="absolute -top-6 right-6 w-12 h-12 bg-primary rounded-full flex items-center justify-center text-white shadow-lg shadow-primary/30 z-10">
+          <div className="absolute -top-6 right-6 w-12 h-12 bg-primary rounded-sm flex items-center justify-center text-foreground shadow-lg shadow-primary/30 z-10">
             <ChefHat size={20} />
           </div>
           <DialogHeader className="text-left">
@@ -52,7 +52,7 @@ export function FoodModal({ food, open, onOpenChange }: FoodModalProps) {
                   window.dispatchEvent(new Event('open-reservation'));
                 }, 150);
               }}
-              className="bg-primary hover:bg-primary/90 text-white px-6 py-2 rounded-full text-sm uppercase tracking-widest font-semibold transition-all hover:scale-105"
+              className="bg-primary hover:bg-primary/90 text-foreground px-6 py-2 rounded-sm text-sm uppercase tracking-widest font-semibold transition-all hover:scale-[1.01]"
             >
               Order Now
             </button>

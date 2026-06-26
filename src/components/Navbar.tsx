@@ -46,13 +46,13 @@ export default function Navbar() {
         animate={{ y: 0 }}
         transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
         className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
-          scrolled ? "bg-background/80 backdrop-blur-md border-b border-border shadow-lg py-4" : "bg-transparent py-6"
+          scrolled ? "bg-card shadow-sm py-4" : "bg-transparent py-6"
         }`}
       >
         <div className="container mx-auto px-4 md:px-8 flex justify-between items-center">
           <Link href="/" className="flex items-center gap-2 z-50">
-            <span className={`font-heading text-2xl md:text-3xl font-bold tracking-tight transition-colors ${scrolled ? 'text-foreground' : 'text-white'}`}>
-              House<span className="text-primary">Of</span>Hunger
+            <span className={`font-heading text-2xl md:text-3xl font-bold tracking-tight transition-colors duration-300 ${scrolled ? 'text-foreground' : 'text-white'}`}>
+              House <span className="font-light italic">of</span> Hunger
             </span>
           </Link>
 
@@ -62,10 +62,10 @@ export default function Navbar() {
               <Link
                 key={link.name}
                 href={link.href}
-                className={`text-sm uppercase tracking-wider font-medium transition-colors hover:text-primary ${
+                className={`text-sm uppercase tracking-widest font-medium transition-colors duration-300 ${
                   pathname === link.href 
                     ? "text-primary" 
-                    : scrolled ? "text-foreground/80 hover:text-foreground" : "text-white/80 hover:text-white"
+                    : scrolled ? "text-foreground/70 hover:text-foreground" : "text-white/70 hover:text-white"
                 }`}
               >
                 {link.name}
@@ -73,7 +73,11 @@ export default function Navbar() {
             ))}
             <button
               onClick={() => setReservationOpen(true)}
-              className="bg-primary hover:bg-primary/90 text-white px-6 py-2.5 rounded-full text-sm uppercase tracking-wider font-semibold transition-all hover:shadow-[0_0_20px_rgba(255,45,117,0.4)]"
+              className={`px-6 py-2.5 rounded-none border text-sm uppercase tracking-widest font-semibold transition-all duration-300 ${
+                scrolled 
+                  ? "border-foreground text-foreground hover:bg-foreground hover:text-card" 
+                  : "border-white text-white hover:bg-white hover:text-black"
+              }`}
             >
               Reserve Table
             </button>
@@ -81,7 +85,8 @@ export default function Navbar() {
 
           {/* Mobile Menu Toggle */}
           <button
-            className={`md:hidden z-50 transition-colors ${scrolled ? 'text-foreground' : 'text-white'}`}
+            aria-label={mobileMenuOpen ? "Close menu" : "Open menu"}
+            className={`md:hidden z-50 transition-colors duration-300 ${scrolled || mobileMenuOpen ? 'text-foreground' : 'text-white'}`}
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
           >
             {mobileMenuOpen ? <X size={28} /> : <Menu size={28} />}
@@ -117,7 +122,7 @@ export default function Navbar() {
                   setMobileMenuOpen(false);
                   setReservationOpen(true);
                 }}
-                className="bg-primary hover:bg-primary/90 text-white px-8 py-4 rounded-full text-lg uppercase tracking-wider font-semibold mt-8"
+                className="border border-foreground text-foreground px-8 py-4 rounded-sm text-sm uppercase tracking-widest font-semibold mt-8 hover:bg-foreground hover:text-background transition-colors duration-300"
               >
                 Reserve Table
               </button>
