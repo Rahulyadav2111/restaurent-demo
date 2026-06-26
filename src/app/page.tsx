@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { useRef, useState } from "react";
+import { useRef, useState, useEffect } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { FoodModal, Food } from "@/components/FoodModal";
 import { Leaf, ChefHat, GlassWater, Users, Clock, Award, Star } from "lucide-react";
@@ -16,10 +16,28 @@ if (typeof window !== "undefined") {
   gsap.registerPlugin(ScrollTrigger, useGSAP);
 }
 
+const BACKGROUND_IMAGES = [
+  "/assets/bg_main.webp",
+  "/assets/inner_main.webp",
+  "/assets/inner1.webp",
+  "/assets/inner2.webp",
+  "/assets/dinning.webp",
+  "/assets/bg1.webp",
+  "/assets/outdoor.jpg"
+];
+
 export default function Home() {
   const containerRef = useRef<HTMLDivElement>(null);
   const [selectedFood, setSelectedFood] = useState<Food | null>(null);
   const [isFoodModalOpen, setIsFoodModalOpen] = useState(false);
+  const [currentBgIndex, setCurrentBgIndex] = useState(0);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCurrentBgIndex((prev) => (prev + 1) % BACKGROUND_IMAGES.length);
+    }, 2000);
+    return () => clearInterval(interval);
+  }, []);
 
   useGSAP(() => {
     // 1. Hero Animations
@@ -27,7 +45,7 @@ export default function Home() {
     
     tl.fromTo(".hero-badge", 
       { opacity: 0, scale: 0.8 }, 
-      { opacity: 1, scale: 1, duration: 1, ease: "power4.out", delay: 0.2 }
+      { opacity: 1, scale: 1, duration: 1, ease: "power4.out", delay: 0.1 }
     )
     .fromTo(".hero-title-word",
       { opacity: 0, y: 100, rotateX: -45 },
@@ -150,15 +168,20 @@ export default function Home() {
       {/* 1. HERO SECTION */}
       <section className="hero-section relative h-[100dvh] min-h-[500px] md:h-screen md:min-h-[600px] flex items-center justify-center overflow-hidden">
         <div className="absolute inset-0 w-full h-full overflow-hidden">
-          <div className="hero-bg absolute inset-0 w-full h-full md:h-[120%] md:-top-[10%]">
-            <Image
-              src="/assets/bg_main.webp"
-              alt="House of Hunger Ambience"
-              fill
-              priority
-              className="object-cover object-[center_30%] md:object-center"
-              quality={100}
-            />
+          <div className="hero-bg absolute inset-0 w-full h-full md:h-[120%] md:-top-[10%] bg-black">
+            {BACKGROUND_IMAGES.map((src, index) => (
+              <Image
+                key={src}
+                src={src}
+                alt={`House of Hunger Ambience ${index + 1}`}
+                fill
+                priority={index === 0}
+                className={`object-cover object-[center_30%] md:object-center transition-all duration-[3000ms] ease-in-out ${
+                  index === currentBgIndex ? "opacity-100 scale-100" : "opacity-0 scale-110"
+                }`}
+                quality={100}
+              />
+            ))}
           </div>
           <div className="absolute inset-0 bg-black/60 md:bg-black/50 z-10" />
         </div>
@@ -323,7 +346,7 @@ export default function Home() {
 
             <div className="reveal-img-container relative h-[500px] w-full rounded-2xl overflow-hidden group shadow-2xl order-1 lg:order-2">
               <Image
-                src="/assets/inner2.webp"
+                src="/assets/inner1.webp"
                 alt="Restaurant Ambiance"
                 fill
                 className="reveal-img object-cover transition-transform duration-[2s] group-hover:scale-105"
